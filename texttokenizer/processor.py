@@ -2,7 +2,7 @@ import fitz
 
 from abc import ABC, abstractmethod
 from loguru import logger as log
-from typing import Set, List, Dict, Tuple, Optional
+from typing import List, Dict, Set, Tuple
 
 from .document import Document
 from .token import Token, Font
@@ -16,7 +16,7 @@ class Processor(ABC):
 
     @abstractmethod
     def tokenize(self, document: Document):
-        """processes the given token to tokenize it."""
+        """processes the given document to tokenize it."""
 
 
 class FitzProccessor(Processor):

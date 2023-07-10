@@ -1,5 +1,7 @@
 # texttokenizer
 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 texttokenizer is a tool and library to tokenize PDF documents. A token is essentially a text segment from the document along with its bounding boxes. The text segment groups together logically related text in the natural reading order.
 
 The primary use case for this library is to convert documents into tokens that are used for ML model training data (generating datasets and transforms for inference). The library should be able to handle any arbitrary PDF document (even scanned ones) with high accuracy.
