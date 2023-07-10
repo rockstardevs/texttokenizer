@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "texttokenizer"
+version = "0.1.0"
+description = "tokenizes pdf documents into text tokens and bounding boxes."
+authors = ["Sumit Arora <singhsays@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+click = "8.1.4"
+dacite = "1.8.1"
+ocrmypdf = "14.3.0"
+opencv-python-headless = "4.8.0.74"
+pymupdf = "^1.22.5"
+loguru = "^0.7.0"
+matplotlib = "^3.7.2"
+pypdfium2 = "^4.18.0"
+
+[tool.poetry.scripts]
+texttokenizer = 'texttokenizer:cli'
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
