@@ -8,13 +8,14 @@ for the text.
 import click
 import dacite
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 from .annotator import PDFiumAnnotator, FitzAnnotator
 from .document import Document
 from .preprocessor import Preproccessor
 from .processor import FitzProccessor
+
 
 @dataclass(kw_only=True)
 class Options:
@@ -23,9 +24,14 @@ class Options:
 
 
 @click.option("--annotate", is_flag=True, help="save the annotated document.")
-@click.option("--annotator",type=click.Choice(["fitz", "pdfium"]), default="fitz", help="annotator implementation to use.")
-@click.option("--pages", help="process specified pages (ranges or comma separated)")
+@click.option(
+    "--annotator",
+    type=click.Choice(["fitz", "pdfium"]),
+    default="fitz",
+    help="annotator implementation to use.",
+)
 @click.option("--fontdir", default="~/.local/share/fonts", help="path to fonts.")
+@click.option("--pages", help="process specified pages (ranges or comma separated)")
 @click.argument("filename")
 @click.command()
 def cli(**kwargs):
@@ -37,6 +43,10 @@ def cli(**kwargs):
     processor = FitzProccessor()
     processor.tokenize(doc)
     if options.annotate:
-        annotatorCls = PDFiumAnnotator if options.annotator == "pdfium" else FitzAnnotator
-        annotator = dacite.from_dict(data_class=annotatorCls, data=kwargs, config=config)
+        annotatorCls = (
+            PDFiumAnnotator if options.annotator == "pdfium" else FitzAnnotator
+        )
+        annotator = dacite.from_dict(
+            data_class=annotatorCls, data=kwargs, config=config
+        )
         annotator.annotate(doc)
