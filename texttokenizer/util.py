@@ -13,6 +13,8 @@ def suffix_path(src: Path, suffix: str, ext=".pdf") -> Path:
 def expand_page_list(pages: str, maxIdx: int, minIdx=0) -> List[int]:
     """Returns a list of page indices from the given page range."""
     expanded = set()
+    if not pages:
+        return list(range(minIdx, maxIdx + 1))
     for item in pages.split(","):
         item = item.strip()
         if "-" in item:
@@ -34,6 +36,7 @@ def merge_bboxes(tokens: List[Token]) -> List[Token]:
     for token in sorted_tokens[1:]:
         cpage, page = current_token.page, token.page
         ctext, text = current_token.text, token.text
+        corig, orig = current_token.origin, token.origin
         cfont, font = current_token.font, token.font
         cx1, cy1, cx2, cy2 = current_token.bbox
         x1, y1, x2, y2 = token.bbox
@@ -43,11 +46,14 @@ def merge_bboxes(tokens: List[Token]) -> List[Token]:
             and (y1 == cy1)
             and (x1 == cx2 or x2 == cx1)
         ):
-            new_bbox = (min(x1, cx1), y1, max(x2, cx2), max(y2, cy2))
-            new_text = [ctext, text] if cx2 == x1 else [text, ctext]
-            current_token = Token(
-                page=page, font=font, bbox=new_bbox, text=" ".join(new_text)
-            )
+            args = {
+                "page": page,
+                "font": font,
+                "bbox": (min(x1, cx1), y1, max(x2, cx2), max(y2, cy2)),
+                "text": " ".join([ctext, text] if cx2 == x1 else [text, ctext]),
+                "origin": corig if cx2 == x1 else orig,
+            }
+            current_token = Token(**args)
         else:
             merged_tokens.append(current_token)
             current_token = token

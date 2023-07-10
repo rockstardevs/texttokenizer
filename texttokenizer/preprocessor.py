@@ -11,6 +11,7 @@ class Preproccessor:
 
     def optimize(self, src: Path, dest: Path):
         """pre-processes the given document to optimize it."""
+        log.info(f"preprocessing - {src}")
         args = {
             "input_file": src,
             "output_file": dest,

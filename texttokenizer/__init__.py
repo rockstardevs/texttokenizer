@@ -8,8 +8,9 @@ for the text.
 import click
 import dacite
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from pathlib import Path
+from typing import Optional
 
 from .annotator import PDFiumAnnotator, FitzAnnotator
 from .document import Document
@@ -21,9 +22,10 @@ from .processor import FitzProccessor
 class Options:
     annotate: bool
     annotator: str
-    fontdir: Path
     filename: Path
-    pages: str
+    pages: Optional[str]
+    merge_bboxes: bool
+    tmproot: Path
 
 
 @click.option("--annotate", is_flag=True, help="save the annotated document.")
@@ -33,14 +35,17 @@ class Options:
     default="fitz",
     help="annotator implementation to use.",
 )
-@click.option("--fontdir", default="~/.local/share/fonts", help="path to fonts.")
+@click.option("--merge_bboxes", is_flag=True, help="flag to merge overlapping bboxes.")
 @click.option("--pages", help="process specified pages (ranges or comma separated)")
+@click.option("--tmproot", default="./tmp", help="root directory for temp files.")
 @click.argument("filename")
 @click.command()
 def cli(**kwargs):
     config = dacite.Config(type_hooks={Path: lambda d: Path(d).expanduser().resolve()})
     options = dacite.from_dict(data_class=Options, data=kwargs, config=config)
-    doc = dacite.from_dict(data_class=Document, data=options)
+    options.tmproot.mkdir(parents=True, exist_ok=True)
+
+    doc = dacite.from_dict(data_class=Document, data=asdict(options))
     preprocessor = Preproccessor()
     processor = FitzProccessor()
 

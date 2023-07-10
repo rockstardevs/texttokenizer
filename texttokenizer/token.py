@@ -9,6 +9,7 @@ class Token:
     page: int
     text: str
     font: Font
+    origin: Tuple[float, float]
     bbox: Tuple[float, float, float, float]
 
     def __repr__(self):
