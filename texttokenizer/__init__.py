@@ -16,18 +16,27 @@ from .document import Document
 from .preprocessor import Preproccessor
 from .processor import FitzProccessor
 
+@dataclass(kw_only=True)
+class Options:
+    annotate: bool
+    annotator: str
+
 
 @click.option("--annotate", is_flag=True, help="save the annotated document.")
+@click.option("--annotator",type=click.Choice(["fitz", "pdfium"]), default="fitz", help="annotator implementation to use.")
 @click.option("--pages", help="process specified pages (ranges or comma separated)")
 @click.option("--fontdir", default="~/.local/share/fonts", help="path to fonts.")
 @click.argument("filename")
 @click.command()
 def cli(**kwargs):
     config = dacite.Config(type_hooks={Path: lambda d: Path(d).expanduser().resolve()})
+    options = dacite.from_dict(data_class=Options, data=kwargs, config=config)
     doc = dacite.from_dict(data_class=Document, data=kwargs, config=config)
     preprocessor = Preproccessor()
     preprocessor.optimize(doc.filename, doc.preprocessed)
     processor = FitzProccessor()
     processor.tokenize(doc)
-    annotator = dacite.from_dict(data_class=FitzAnnotator, data=kwargs, config=config)
-    annotator.annotate(doc)
+    if options.annotate:
+        annotatorCls = PDFiumAnnotator if options.annotator == "pdfium" else FitzAnnotator
+        annotator = dacite.from_dict(data_class=annotatorCls, data=kwargs, config=config)
+        annotator.annotate(doc)
