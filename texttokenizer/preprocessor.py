@@ -15,6 +15,7 @@ class Preproccessor:
         args = {
             "input_file": src,
             "output_file": dest,
+            "output_type": "pdf",
             "skip_text": True,
             "clean": True,
             "optimize": 3,

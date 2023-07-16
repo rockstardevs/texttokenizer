@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 from .token import Token
 
@@ -60,3 +60,29 @@ def merge_bboxes(tokens: List[Token]) -> List[Token]:
     if not merged_tokens or current_token.text != merged_tokens[-1].text:
         merged_tokens.append(current_token)
     return merged_tokens
+
+
+FONT_FLAGS = {
+    "superscript": 2**0,
+    "italic": 2**1,
+    "serif": 2**2,
+    "mono": 2**3,
+    "bold": 2**4,
+}
+
+
+def flag_composer(flags: Dict) -> int:
+    """Computes a font flags int from the given font flags."""
+    result = 0
+    for k, v in FONT_FLAGS.items():
+        if flags.get(k):
+            result |= v
+    return result
+
+
+def flags_decomposer(flags: int) -> Dict:
+    """Decomposes the given font flag int into flags."""
+    l = {k: bool(flags & v) for k, v in FONT_FLAGS.items()}
+    l["sans"] = not l["serif"]
+    l["proportional"] = not l["mono"]
+    return l

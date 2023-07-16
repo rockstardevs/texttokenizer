@@ -7,7 +7,7 @@ from typing import List, Dict, Set, Tuple
 
 from .document import Document
 from .token import Token, Font
-from .util import expand_page_list, merge_bboxes
+from .util import expand_page_list, merge_bboxes, flag_composer
 
 
 class Processor(ABC):
@@ -31,17 +31,22 @@ class FitzProccessor(Processor):
         filepath = dir.joinpath(str(idx))
         filepath.mkdir(parents=True, exist_ok=True)
         for font in doc.get_page_fonts(idx):
+            log.info(f"extracting page font: {font}")
             xref, ext, _, name, _, enc = font
-            # Skip builtin fonts
-            if ext == "n/a":
-                continue
             if "+" in name:
-                name = name.split("+", 1)[1]
-            if name in fonts:
+                name = name.split("+")[-1]
+            font_obj, flags = None, 0
+            if ext == "n/a":
+                font_obj = fitz.Font(fontname=name)
+            else:
                 font_data = doc.extract_font(xref, named=True)
+                font_obj = fitz.Font(fontbuffer=font_data["content"])
+                flags = flag_composer(font_obj.flags)
+            name = f"{name}-{flags}"
+            if name in fonts:
                 filename = filepath.joinpath(name).with_suffix(f".{font_data['ext']}")
                 with open(filename, "wb") as f:
-                    f.write(font_data["content"])
+                    f.write(font_obj.buffer)
                 log.info(f"writing font {filename} {enc}")
 
     def tokenize(self, document: Document):
@@ -92,4 +97,5 @@ class FitzProccessor(Processor):
         if "font" not in span:
             log.warning(f"no font info for span {span['text']}")
             return ("", 0)
-        return (span["font"], span["size"])
+        font_name = f"{span['font']}-{span['flags']}"
+        return (font_name, span["size"])
