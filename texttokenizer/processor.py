@@ -56,10 +56,10 @@ class FitzProccessor(Processor):
                 tokens, fonts = self.tokenize_page(idx, doc[idx], document.merge_bboxes)
                 log.info(f"extracted {len(tokens)} tokens from page {idx}")
                 log.info(f"fonts used: {fonts}")
-                document.tokens[idx] = tokens
-                document.save_tokens(idx)
+                document.tokens.extend(tokens)
                 if document.annotate:
                     self.extract_page_fonts(doc, idx, fonts, document.fontdir)
+        document.save_tokens()
         document.fonts = set(sorted(document.fonts))
 
     def tokenize_page(

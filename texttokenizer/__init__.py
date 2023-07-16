@@ -25,6 +25,7 @@ class Options:
     filename: Path
     pages: Optional[str]
     merge_bboxes: bool
+    token_format: str
     tmproot: Path
 
 
@@ -37,6 +38,12 @@ class Options:
 )
 @click.option("--merge_bboxes", is_flag=True, help="flag to merge overlapping bboxes.")
 @click.option("--pages", help="process specified pages (ranges or comma separated)")
+@click.option(
+    "--token_format",
+    type=click.Choice(["csv", "templatizer"]),
+    default="templatizer",
+    help="output format for tokens.",
+)
 @click.option("--tmproot", default="./tmp", help="root directory for temp files.")
 @click.argument("filename")
 @click.command()

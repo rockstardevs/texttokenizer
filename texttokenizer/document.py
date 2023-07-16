@@ -1,11 +1,14 @@
+import csv
+import json
+
 from dataclasses import dataclass, field
 from loguru import logger as log
 from pathlib import Path
 from tempfile import mkdtemp
-from typing import Set, Dict, List, Optional
+from typing import Set, List, Optional
 
 from .util import suffix_path
-from .token import Font
+from .token import Token, Font
 
 
 @dataclass(kw_only=True)
@@ -17,6 +20,7 @@ class Document:
     filename: Path
     pages: Optional[str]
     merge_bboxes: bool
+    token_format: str
     tmproot: Path
 
     # These attributes are populated through the phases.
@@ -24,7 +28,7 @@ class Document:
     tempdir: Optional[Path]
     fontdir: Optional[Path]
     page_indices: List[int] = field(default_factory=list)
-    tokens: Dict = field(default_factory=dict)
+    tokens: List = field(default_factory=list)
     fonts: Set[Font] = field(default_factory=set)
 
     def __post_init__(self):
@@ -38,9 +42,26 @@ class Document:
             self.fontdir = self.tempdir.joinpath("fonts")
             log.info(f"using tempdir {self.tempdir}")
 
-    def save_tokens(self, idx: int):
-        filename = suffix_path(self.filename, f"tokens-{idx}", ext=".txt")
+    def save_templatizer_tokens(self):
+        filename = suffix_path(self.filename, f"tokens", ext=".json")
+        data = {}
+        for i, token in enumerate(self.tokens):
+            data[f"token_{i}"] = [token.as_templatizer_dict()]
         with open(filename, "w") as f:
-            for token in self.tokens[idx]:
-                f.write(str(token) + "\n")
+            f.write(json.dumps(data))
         log.info(f"writing tokens in {filename}")
+
+    def save_csv_tokens(self):
+        filename = suffix_path(self.filename, f"tokens", ext=".csv")
+        with open(filename, "w") as f:
+            writer = csv.writer(f)
+            writer.writerow(Token.csv_headers())
+            for token in self.tokens:
+                writer.writerow(token.as_csv_row())
+        log.info(f"writing tokens in {filename}")
+
+    def save_tokens(self):
+        if self.token_format == "templatizer":
+            self.save_templatizer_tokens()
+        else:
+            self.save_csv_tokens()

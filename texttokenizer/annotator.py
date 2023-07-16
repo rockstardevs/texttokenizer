@@ -65,8 +65,9 @@ class Annotator(ABC):
         log.info(f"annotating - {document.preprocessed}")
         page_images = self.get_page_images(document)
         for idx, img in page_images:
+            page_tokens = [t for t in document.tokens if t.page == idx]
             self.load_fonts(document.fontdir.joinpath(str(idx)))
-            self.write_tokens(img=img, tokens=document.tokens[idx])
+            self.write_tokens(img=img, tokens=page_tokens)
             filename = suffix_path(document.filename, f"annotated-{idx}", ext=".png")
             img.save(filename)
             log.info(f"writing annotated {filename}")
