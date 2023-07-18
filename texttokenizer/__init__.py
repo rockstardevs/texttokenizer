@@ -21,6 +21,9 @@ from .processor import FitzProccessor
 @dataclass(kw_only=True)
 class Options:
     annotate: bool
+    annotate_bbox: bool
+    annotate_text: bool
+    annotate_token: bool
     annotator: str
     filename: Path
     pages: Optional[str]
@@ -30,6 +33,9 @@ class Options:
 
 
 @click.option("--annotate", is_flag=True, help="save the annotated document.")
+@click.option("--annotate_bbox", default=True, help="annotate token bbox.")
+@click.option("--annotate_text", default=False, help="annotate token text.")
+@click.option("--annotate_token", default=True, help="annotate token index.")
 @click.option(
     "--annotator",
     type=click.Choice(["fitz", "pdfium"]),

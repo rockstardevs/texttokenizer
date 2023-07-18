@@ -31,6 +31,10 @@ class Config:
 class Annotator(ABC):
     """Generates an token annotated image of each page of the document."""
 
+    annotate_bbox: bool
+    annotate_text: bool
+    annotate_token: bool
+
     fonts: Dict[str, Path] = field(default_factory=dict)
     default_font: ImageFont = load_default()
 
@@ -52,17 +56,26 @@ class Annotator(ABC):
 
     def write_tokens(self, img: Image.Image, tokens):
         draw = ImageDraw.Draw(img)
-        for token in tokens:
+        for i, token in enumerate(tokens):
             font = self.get_font(token.font)
             bbox = tuple(map(lambda x: x * Config.scale, token.bbox))
             origin = tuple(map(lambda x: x * Config.scale, token.origin))
-            draw.text(
-                origin, token.text, font=font, fill=Config.text_color, anchor="ls"
-            )
-            draw.rectangle(bbox, outline=Config.box_color, width=Config.stroke)
+            if self.annotate_token:
+                draw.text(
+                    origin, str(i), font=font, fill=Config.text_color, anchor="ls"
+                )
+            if self.annotate_text:
+                draw.text(
+                    origin, token.text, font=font, fill=Config.text_color, anchor="ls"
+                )
+            if self.annotate_bbox:
+                draw.rectangle(bbox, outline=Config.box_color, width=Config.stroke)
 
     def annotate(self, document: Document):
         log.info(f"annotating - {document.preprocessed}")
+        if not (self.annotate_bbox or self.annotate_text or self.annotate_token):
+            log.warning("annotation requested but nothing to annotate")
+            return
         page_images = self.get_page_images(document)
         for idx, img in page_images:
             page_tokens = [t for t in document.tokens if t.page == idx]
