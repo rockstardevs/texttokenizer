@@ -26,6 +26,7 @@ class Options:
     annotate_token: bool
     annotator: str
     annotator_font: Path
+    preprocessor_use_pdfa: bool
     filename: Path
     pages: Optional[str]
     merge_bboxes: bool
@@ -56,6 +57,11 @@ class Options:
     default="templatizer",
     help="output format for tokens.",
 )
+@click.option(
+    "--preprocessor_use_pdfa",
+    is_flag=True,
+    help="use pdf/a format conversion in preprocessor.",
+)
 @click.option("--tmproot", default="./tmp", help="root directory for temp files.")
 @click.argument("filename")
 @click.command()
@@ -68,7 +74,8 @@ def cli(**kwargs):
     preprocessor = Preproccessor()
     processor = FitzProccessor()
 
-    preprocessor.optimize(doc.filename, doc.preprocessed)
+    format = "pdfa" if options.preprocessor_use_pdfa else "pdf"
+    preprocessor.optimize(doc.filename, doc.preprocessed, format)
     processor.tokenize(doc)
 
     if options.annotate:

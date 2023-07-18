@@ -9,13 +9,13 @@ class Preproccessor:
     Implements a OMP (OcrMyPDF) based preprocessor.
     """
 
-    def optimize(self, src: Path, dest: Path):
+    def optimize(self, src: Path, dest: Path, format="pdfa"):
         """pre-processes the given document to optimize it."""
         log.info(f"preprocessing - {src}")
         args = {
             "input_file": src,
             "output_file": dest,
-            "output_type": "pdf",
+            "output_type": format,
             "skip_text": True,
             "clean": True,
             "optimize": 3,
