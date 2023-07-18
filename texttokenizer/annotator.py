@@ -6,9 +6,9 @@ from dataclasses import dataclass, field
 from io import BytesIO
 from pathlib import Path
 from PIL import Image, ImageDraw
-from PIL.ImageFont import ImageFont, FreeTypeFont, load_default
+from PIL.ImageFont import ImageFont, FreeTypeFont, truetype
 from loguru import logger as log
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from .document import Document
 from .token import Font
@@ -34,9 +34,13 @@ class Annotator(ABC):
     annotate_bbox: bool
     annotate_text: bool
     annotate_token: bool
+    annotator_font: Path
 
     fonts: Dict[str, Path] = field(default_factory=dict)
-    default_font: ImageFont = load_default()
+    default_font: Optional[ImageFont]
+
+    def __post_init__(self):
+        self.default_font = truetype(str(self.annotator_font), size=22)
 
     def load_fonts(self, fontdir: Path):
         fonts = {}
@@ -62,7 +66,11 @@ class Annotator(ABC):
             origin = tuple(map(lambda x: x * Config.scale, token.origin))
             if self.annotate_token:
                 draw.text(
-                    origin, str(i), font=font, fill=Config.text_color, anchor="ls"
+                    origin,
+                    str(i),
+                    font=self.default_font,
+                    fill=Config.text_color,
+                    anchor="ls",
                 )
             if self.annotate_text:
                 draw.text(

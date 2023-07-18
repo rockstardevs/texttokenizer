@@ -25,6 +25,7 @@ class Options:
     annotate_text: bool
     annotate_token: bool
     annotator: str
+    annotator_font: Path
     filename: Path
     pages: Optional[str]
     merge_bboxes: bool
@@ -41,6 +42,11 @@ class Options:
     type=click.Choice(["fitz", "pdfium"]),
     default="fitz",
     help="annotator implementation to use.",
+)
+@click.option(
+    "--annotator_font",
+    default="~/.local/share/fonts/Verdana.ttf",
+    help="path to font for annotation.",
 )
 @click.option("--merge_bboxes", is_flag=True, help="flag to merge overlapping bboxes.")
 @click.option("--pages", help="process specified pages (ranges or comma separated)")
