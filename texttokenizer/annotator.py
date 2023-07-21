@@ -35,6 +35,7 @@ class Annotator(ABC):
     annotate_text: bool
     annotate_token: bool
     annotator_font: Path
+    fonts_dir: Path
 
     fonts: Dict[str, Path] = field(default_factory=dict)
     default_font: Optional[ImageFont]
@@ -42,9 +43,9 @@ class Annotator(ABC):
     def __post_init__(self):
         self.default_font = truetype(str(self.annotator_font), size=22)
 
-    def load_fonts(self, fontdir: Path):
+    def load_fonts(self, fonts_dir: Path):
         fonts = {}
-        for f in fontdir.iterdir():
+        for f in fonts_dir.iterdir():
             if f.is_file():
                 fonts[f.with_suffix("").name] = f
         self.fonts = fonts
@@ -87,7 +88,7 @@ class Annotator(ABC):
         page_images = self.get_page_images(document)
         for idx, img in page_images:
             page_tokens = [t for t in document.tokens if t.page == idx]
-            self.load_fonts(document.fontdir.joinpath(str(idx)))
+            self.load_fonts(self.fonts_dir.joinpath(str(idx)))
             self.write_tokens(img=img, tokens=page_tokens)
             filename = suffix_path(document.filename, f"annotated-{idx}", ext=".png")
             img.save(filename)

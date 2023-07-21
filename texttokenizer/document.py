@@ -4,7 +4,6 @@ import json
 from dataclasses import dataclass, field
 from loguru import logger as log
 from pathlib import Path
-from tempfile import mkdtemp
 from typing import Set, List, Optional
 
 from .util import suffix_path
@@ -16,7 +15,6 @@ class Document:
     """Document represents a single (multi page) document that is being analyzed."""
 
     # These attributes are needed at instantiation.
-    annotate: bool
     filename: Path
     pages: Optional[str]
     merge_bboxes: bool
@@ -25,22 +23,12 @@ class Document:
 
     # These attributes are populated through the phases.
     preprocessed: Optional[Path]
-    tempdir: Optional[Path]
-    fontdir: Optional[Path]
     page_indices: List[int] = field(default_factory=list)
     tokens: List = field(default_factory=list)
     fonts: Set[Font] = field(default_factory=set)
 
     def __post_init__(self):
         self.preprocessed = suffix_path(self.filename, "preprocessed")
-        if self.annotate:
-            self.tempdir = Path(
-                mkdtemp(
-                    prefix=f"{self.filename.with_suffix('').name}-", dir=self.tmproot
-                )
-            )
-            self.fontdir = self.tempdir.joinpath("fonts")
-            log.info(f"using tempdir {self.tempdir}")
 
     def save_templatizer_tokens(self, filename: Path):
         data = {}

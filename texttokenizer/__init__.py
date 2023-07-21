@@ -9,7 +9,9 @@ import click
 import dacite
 
 from dataclasses import dataclass, asdict
+from loguru import logger as log
 from pathlib import Path
+from tempfile import mkdtemp
 from typing import Optional
 
 from .annotator import PDFiumAnnotator, FitzAnnotator
@@ -75,9 +77,25 @@ def cli(**kwargs):
     preprocessor = Preproccessor()
     processor = FitzProccessor()
 
+    fonts_dir = None
+    if options.annotate:
+        tempdir = Path(
+            mkdtemp(prefix=f"{doc.filename.with_suffix('').name}-", dir=options.tmproot)
+        )
+        log.info(f"using tempdir {tempdir}")
+        fonts_dir = tempdir.joinpath("fonts")
+        annotatorCls = (
+            PDFiumAnnotator if options.annotator == "pdfium" else FitzAnnotator
+        )
+        annotator = dacite.from_dict(
+            data_class=annotatorCls,
+            data={"fonts_dir": fonts_dir, **kwargs},
+            config=config,
+        )
+
     format = "pdfa" if options.preprocessor_use_pdfa else "pdf"
     preprocessor.optimize(doc.filename, doc.preprocessed, format)
-    processor.tokenize(doc)
+    processor.tokenize(doc, fonts_dir=fonts_dir)
 
     if options.token_format == "templatizer":
         filename = suffix_path(doc.filename, f"tokens", ext=".json")
@@ -87,10 +105,4 @@ def cli(**kwargs):
         doc.save_csv_tokens(filename)
 
     if options.annotate:
-        annotatorCls = (
-            PDFiumAnnotator if options.annotator == "pdfium" else FitzAnnotator
-        )
-        annotator = dacite.from_dict(
-            data_class=annotatorCls, data=kwargs, config=config
-        )
         annotator.annotate(doc)

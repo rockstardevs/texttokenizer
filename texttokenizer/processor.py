@@ -49,7 +49,7 @@ class FitzProccessor(Processor):
                     f.write(font_obj.buffer)
                 log.info(f"writing font {filename} {enc}")
 
-    def tokenize(self, document: Document):
+    def tokenize(self, document: Document, fonts_dir: Path | None = None):
         log.info(f"processing - {document.preprocessed}")
         with fitz.open(document.preprocessed) as doc:
             pages = expand_page_list(document.pages, len(doc) - 1)
@@ -62,8 +62,8 @@ class FitzProccessor(Processor):
                 log.info(f"extracted {len(tokens)} tokens from page {idx}")
                 log.info(f"fonts used: {fonts}")
                 document.tokens.extend(tokens)
-                if document.annotate:
-                    self.extract_page_fonts(doc, idx, fonts, document.fontdir)
+                if fonts_dir is not None:
+                    self.extract_page_fonts(doc, idx, fonts, fonts_dir)
         document.fonts = set(sorted(document.fonts))
 
     def tokenize_page(
