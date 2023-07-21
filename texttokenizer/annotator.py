@@ -81,7 +81,7 @@ class Annotator(ABC):
                 draw.rectangle(bbox, outline=Config.box_color, width=Config.stroke)
 
     def annotate(self, document: Document):
-        log.info(f"annotating - {document.preprocessed}")
+        log.info(f"annotating - {document.filename}")
         if not (self.annotate_bbox or self.annotate_text or self.annotate_token):
             log.warning("annotation requested but nothing to annotate")
             return
@@ -104,12 +104,13 @@ class PDFiumAnnotator(Annotator):
     """A pdfium (PyPdfium2) based annotator."""
 
     def get_page_images(self, document: Document):
-        doc = pdfium.PdfDocument(document.preprocessed)
-        pages = document.page_indices
+        doc = pdfium.PdfDocument(document.filename)
         renderer = doc.render(
-            pdfium.PdfBitmap.to_pil, page_indices=pages, scale=Config.scale
+            pdfium.PdfBitmap.to_pil,
+            page_indices=document.page_indices,
+            scale=Config.scale,
         )
-        return zip(pages, renderer)
+        return zip(document.page_indices, renderer)
 
 
 @dataclass(kw_only=True)
@@ -118,12 +119,10 @@ class FitzAnnotator(Annotator):
 
     def get_page_images(self, document: Document):
         page_images = []
-        with fitz.open(document.preprocessed) as doc:
-            pages = document.page_indices
-            for idx in pages:
-                pix = doc[idx].get_pixmap(dpi=Config.dpi)
-                pix.gamma_with(1.01)
-                buff = pix.pil_tobytes("png")
-                img = Image.open(BytesIO(buff))
-                page_images.append((idx, img))
+        for idx in document.page_indices:
+            pix = document.pdf_doc[idx].get_pixmap(dpi=Config.dpi)
+            pix.gamma_with(1.01)
+            buff = pix.pil_tobytes("png")
+            img = Image.open(BytesIO(buff))
+            page_images.append((idx, img))
         return page_images

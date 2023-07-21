@@ -7,7 +7,7 @@ from typing import List, Dict, Set, Tuple
 
 from .document import Document
 from .token import Token, Font
-from .util import expand_page_list, merge_bboxes, flag_composer
+from .util import flag_composer, merge_bboxes
 
 
 class Processor(ABC):
@@ -50,20 +50,16 @@ class FitzProccessor(Processor):
                 log.info(f"writing font {filename} {enc}")
 
     def tokenize(self, document: Document, fonts_dir: Path | None = None):
-        log.info(f"processing - {document.preprocessed}")
-        with fitz.open(document.preprocessed) as doc:
-            pages = expand_page_list(document.pages, len(doc) - 1)
-            if pages:
-                document.page_indices = pages
-            for idx in range(len(doc)):
-                if pages and idx not in pages:
-                    continue
-                tokens, fonts = self.tokenize_page(idx, doc[idx], document.merge_bboxes)
-                log.info(f"extracted {len(tokens)} tokens from page {idx}")
-                log.info(f"fonts used: {fonts}")
-                document.tokens.extend(tokens)
-                if fonts_dir is not None:
-                    self.extract_page_fonts(doc, idx, fonts, fonts_dir)
+        log.info(f"processing - {document.filename}")
+        for idx in document.page_indices:
+            tokens, fonts = self.tokenize_page(
+                idx, document.pdf_doc[idx], document.merge_bboxes
+            )
+            log.info(f"extracted {len(tokens)} tokens from page {idx}")
+            log.info(f"fonts used: {fonts}")
+            document.tokens.extend(tokens)
+            if fonts_dir is not None:
+                self.extract_page_fonts(document.pdf_doc, idx, fonts, fonts_dir)
         document.fonts = set(sorted(document.fonts))
 
     def tokenize_page(

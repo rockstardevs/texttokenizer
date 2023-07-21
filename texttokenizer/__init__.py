@@ -94,7 +94,10 @@ def cli(**kwargs):
         )
 
     format = "pdfa" if options.preprocessor_use_pdfa else "pdf"
-    preprocessor.optimize(doc.filename, doc.preprocessed, format)
+    preprocessed = suffix_path(doc.filename, "preprocessed")
+    preprocessor.optimize(doc.filename, preprocessed, format)
+    doc.update_pdf_doc(preprocessed)
+
     processor.tokenize(doc, fonts_dir=fonts_dir)
 
     if options.token_format == "templatizer":
