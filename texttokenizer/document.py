@@ -13,7 +13,7 @@ from .token import Token, Font
 
 @dataclass(kw_only=True)
 class Document:
-    """Document represents a single (mulit page) document that is being analyzed."""
+    """Document represents a single (multi page) document that is being analyzed."""
 
     # These attributes are needed at instantiation.
     annotate: bool
@@ -42,8 +42,7 @@ class Document:
             self.fontdir = self.tempdir.joinpath("fonts")
             log.info(f"using tempdir {self.tempdir}")
 
-    def save_templatizer_tokens(self):
-        filename = suffix_path(self.filename, f"tokens", ext=".json")
+    def save_templatizer_tokens(self, filename: Path):
         data = {}
         for i, token in enumerate(self.tokens):
             data[f"token_{i}"] = [token.as_templatizer_dict()]
@@ -51,17 +50,10 @@ class Document:
             f.write(json.dumps(data))
         log.info(f"writing tokens in {filename}")
 
-    def save_csv_tokens(self):
-        filename = suffix_path(self.filename, f"tokens", ext=".csv")
+    def save_csv_tokens(self, filename: Path):
         with open(filename, "w") as f:
             writer = csv.writer(f)
             writer.writerow(Token.csv_headers())
             for token in self.tokens:
                 writer.writerow(token.as_csv_row())
         log.info(f"writing tokens in {filename}")
-
-    def save_tokens(self):
-        if self.token_format == "templatizer":
-            self.save_templatizer_tokens()
-        else:
-            self.save_csv_tokens()

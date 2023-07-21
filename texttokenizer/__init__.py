@@ -16,6 +16,7 @@ from .annotator import PDFiumAnnotator, FitzAnnotator
 from .document import Document
 from .preprocessor import Preproccessor
 from .processor import FitzProccessor
+from .util import suffix_path
 
 
 @dataclass(kw_only=True)
@@ -77,6 +78,13 @@ def cli(**kwargs):
     format = "pdfa" if options.preprocessor_use_pdfa else "pdf"
     preprocessor.optimize(doc.filename, doc.preprocessed, format)
     processor.tokenize(doc)
+
+    if options.token_format == "templatizer":
+        filename = suffix_path(doc.filename, f"tokens", ext=".json")
+        doc.save_templatizer_tokens(filename)
+    else:
+        filename = suffix_path(doc.filename, f"tokens", ext=".csv")
+        doc.save_csv_tokens(filename)
 
     if options.annotate:
         annotatorCls = (

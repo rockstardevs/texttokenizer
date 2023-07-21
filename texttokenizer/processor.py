@@ -64,7 +64,6 @@ class FitzProccessor(Processor):
                 document.tokens.extend(tokens)
                 if document.annotate:
                     self.extract_page_fonts(doc, idx, fonts, document.fontdir)
-        document.save_tokens()
         document.fonts = set(sorted(document.fonts))
 
     def tokenize_page(
