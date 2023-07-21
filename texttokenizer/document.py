@@ -19,8 +19,6 @@ class Document:
     filename: Path
     pages: Optional[str]
     merge_bboxes: bool
-    token_format: str
-    tmproot: Path
 
     # These attributes are populated through the phases.
     pdf_doc: fitz.Document | None
