@@ -1,12 +1,11 @@
-import fitz
-
 from abc import ABC, abstractmethod
-from loguru import logger as log
 from pathlib import Path
-from typing import List, Dict, Set, Tuple
+
+import fitz
+from loguru import logger as log
 
 from .document import Document
-from .token import Token, Font
+from .token import Font, Token
 from .util import flag_composer, merge_bboxes
 
 
@@ -26,7 +25,7 @@ class FitzProccessor(Processor):
     """
 
     def extract_page_fonts(
-        self, doc: fitz.Document, idx: int, fonts: Set[str], dir: Path
+        self, doc: fitz.Document, idx: int, fonts: set[str], dir: Path
     ):
         filepath = dir.joinpath(str(idx))
         filepath.mkdir(parents=True, exist_ok=True)
@@ -67,9 +66,9 @@ class FitzProccessor(Processor):
 
     def tokenize_page(
         self, idx: int, page: fitz.Page, merge: bool
-    ) -> Tuple[List[Token], Set[str]]:
-        fonts: Set[str] = set()
-        tokens: List[Token] = []
+    ) -> tuple[list[Token], set[str]]:
+        fonts: set[str] = set()
+        tokens: list[Token] = []
         for block in page.get_text("dict")["blocks"]:
             if "lines" not in block:
                 continue
@@ -91,7 +90,7 @@ class FitzProccessor(Processor):
             tokens = merge_bboxes(tokens)
         return (tokens, fonts)
 
-    def extract_font(self, span: Dict) -> Font:
+    def extract_font(self, span: dict) -> Font:
         if "font" not in span:
             log.warning(f"no font info for span {span['text']}")
             return ("", 0)

@@ -1,20 +1,19 @@
 """texttokenizer
 
 This script tokenizes a given pdf document into text tokens where each token is
-a pair of text extracted from the document and the corresponding bounding box 
+a pair of text extracted from the document and the corresponding bounding box
 for the text.
 """
 
-import click
-import dacite
-
-from dataclasses import dataclass, asdict
-from loguru import logger as log
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from tempfile import mkdtemp
-from typing import Optional
 
-from .annotator import PDFiumAnnotator, FitzAnnotator
+import click
+import dacite
+from loguru import logger as log
+
+from .annotator import FitzAnnotator, PDFiumAnnotator
 from .document import Document
 from .preprocessor import Preproccessor
 from .processor import FitzProccessor
@@ -31,7 +30,7 @@ class Options:
     annotator_font: Path
     preprocessor_use_pdfa: bool
     filename: Path
-    pages: Optional[str]
+    pages: str | None
     merge_bboxes: bool
     token_format: str
     tmproot: Path
@@ -101,10 +100,10 @@ def cli(**kwargs):
     processor.tokenize(doc, fonts_dir=fonts_dir, merge_bboxes=options.merge_bboxes)
 
     if options.token_format == "templatizer":
-        filename = suffix_path(doc.filename, f"tokens", ext=".json")
+        filename = suffix_path(doc.filename, "tokens", ext=".json")
         doc.save_templatizer_tokens(filename)
     else:
-        filename = suffix_path(doc.filename, f"tokens", ext=".csv")
+        filename = suffix_path(doc.filename, "tokens", ext=".csv")
         doc.save_csv_tokens(filename)
 
     if options.annotate:

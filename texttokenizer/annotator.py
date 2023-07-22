@@ -1,19 +1,17 @@
-import pypdfium2 as pdfium
-import fitz
-
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from io import BytesIO
 from pathlib import Path
-from PIL import Image, ImageDraw
-from PIL.ImageFont import ImageFont, FreeTypeFont, truetype
+
+import fitz
+import pypdfium2 as pdfium
 from loguru import logger as log
-from typing import Dict, List, Optional, Tuple
+from PIL import Image, ImageDraw
+from PIL.ImageFont import FreeTypeFont, ImageFont, truetype
 
 from .document import Document
 from .token import Font
 from .util import suffix_path
-
 
 fitz.TOOLS.set_aa_level(4)
 
@@ -37,8 +35,8 @@ class Annotator(ABC):
     annotator_font: Path
     fonts_dir: Path
 
-    fonts: Dict[str, Path] = field(default_factory=dict)
-    default_font: Optional[ImageFont]
+    fonts: dict[str, Path] = field(default_factory=dict)
+    default_font: ImageFont | None
 
     def __post_init__(self):
         self.default_font = truetype(str(self.annotator_font), size=22)
@@ -95,7 +93,7 @@ class Annotator(ABC):
             log.info(f"writing annotated {filename}")
 
     @abstractmethod
-    def get_page_images(self, document: Document) -> List[Tuple[int, Image.Image]]:
+    def get_page_images(self, document: Document) -> list[tuple[int, Image.Image]]:
         """Returns a list of tuples of page indices and corresponding PIL image."""
 
 

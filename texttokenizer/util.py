@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Dict, List
 
 from .token import Token
 
@@ -10,7 +9,7 @@ def suffix_path(src: Path, suffix: str, ext=".pdf") -> Path:
     return src.with_name(dest_name)
 
 
-def expand_page_list(pages: str, maxIdx: int, minIdx=0) -> List[int]:
+def expand_page_list(pages: str, maxIdx: int, minIdx=0) -> list[int]:
     """Returns a list of page indices from the given page range."""
     expanded = set()
     if not pages:
@@ -26,7 +25,7 @@ def expand_page_list(pages: str, maxIdx: int, minIdx=0) -> List[int]:
     return list(expanded)
 
 
-def merge_bboxes(tokens: List[Token]) -> List[Token]:
+def merge_bboxes(tokens: list[Token]) -> list[Token]:
     """Merge tokens using heuristics on token bounding boxes."""
     sorted_tokens = sorted(
         tokens, key=lambda token: (token.page, token.bbox[1], token.bbox[0])
@@ -71,7 +70,7 @@ FONT_FLAGS = {
 }
 
 
-def flag_composer(flags: Dict) -> int:
+def flag_composer(flags: dict) -> int:
     """Computes a font flags int from the given font flags."""
     result = 0
     for k, v in FONT_FLAGS.items():
@@ -80,9 +79,9 @@ def flag_composer(flags: Dict) -> int:
     return result
 
 
-def flags_decomposer(flags: int) -> Dict:
+def flags_decomposer(flags: int) -> dict:
     """Decomposes the given font flag int into flags."""
-    l = {k: bool(flags & v) for k, v in FONT_FLAGS.items()}
-    l["sans"] = not l["serif"]
-    l["proportional"] = not l["mono"]
-    return l
+    result = {k: bool(flags & v) for k, v in FONT_FLAGS.items()}
+    result["sans"] = not result["serif"]
+    result["proportional"] = not result["mono"]
+    return result

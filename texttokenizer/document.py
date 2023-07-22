@@ -1,14 +1,13 @@
 import csv
-import fitz
 import json
-
 from dataclasses import dataclass, field
-from loguru import logger as log
 from pathlib import Path
-from typing import Set, List, Optional
 
+import fitz
+from loguru import logger as log
+
+from .token import Font, Token
 from .util import expand_page_list
-from .token import Token, Font
 
 
 @dataclass(kw_only=True)
@@ -17,13 +16,13 @@ class Document:
 
     # These attributes are needed at instantiation.
     filename: Path
-    pages: Optional[str]
+    pages: str | None
 
     # These attributes are populated through the phases.
     pdf_doc: fitz.Document | None
-    page_indices: List[int] = field(default_factory=list)
-    tokens: List = field(default_factory=list)
-    fonts: Set[Font] = field(default_factory=set)
+    page_indices: list[int] = field(default_factory=list)
+    tokens: list = field(default_factory=list)
+    fonts: set[Font] = field(default_factory=set)
 
     def __post_init__(self):
         self.update_pdf_doc(self.filename)

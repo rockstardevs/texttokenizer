@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import Tuple, TypeAlias
+from typing import TypeAlias
 
-Font: TypeAlias = Tuple[str, float]
+Font: TypeAlias = tuple[str, float]
 
 
 @dataclass(kw_only=True)
@@ -9,17 +9,17 @@ class Token:
     page: int
     text: str
     font: Font
-    origin: Tuple[float, float]
-    bbox: Tuple[float, float, float, float]
+    origin: tuple[float, float]
+    bbox: tuple[float, float, float, float]
 
     @classmethod
-    def csv_headers(self) -> Tuple[str]:
+    def csv_headers(self) -> tuple[str]:
         return ("page", "text", "font", "origin", "bbox")
 
     def __repr__(self):
         return f"page:{self.page} text:{self.text} font:{self.font} bbox:{self.bbox} origin:{self.origin}"
 
-    def as_csv_row(self) -> Tuple:
+    def as_csv_row(self) -> tuple:
         return ({self.page}, {self.text}, {self.font}, {self.origin}, {self.bbox})
 
     def as_templatizer_dict(self):

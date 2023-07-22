@@ -1,7 +1,7 @@
-import ocrmypdf
-
-from loguru import logger as log
 from pathlib import Path
+
+import ocrmypdf
+from loguru import logger as log
 
 
 class Preproccessor:

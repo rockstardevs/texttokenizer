@@ -19,6 +19,19 @@ pypdfium2 = "^4.18.0"
 [tool.poetry.scripts]
 texttokenizer = 'texttokenizer:cli'
 
+[tool.poetry.group.extras.dependencies]
+pytest = "^7.4.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+select = [
+  #"D", # pydocstyle
+  "E", # pycodestyle
+  "W", # pycodestyle
+  "F", # pyflakes
+  "I001", # isort
+  "UP", # pyupgrade
+]
