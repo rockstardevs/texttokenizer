@@ -98,7 +98,7 @@ def cli(**kwargs):
     preprocessor.optimize(doc.filename, preprocessed, format)
     doc.update_pdf_doc(preprocessed)
 
-    processor.tokenize(doc, fonts_dir=fonts_dir)
+    processor.tokenize(doc, fonts_dir=fonts_dir, merge_bboxes=options.merge_bboxes)
 
     if options.token_format == "templatizer":
         filename = suffix_path(doc.filename, f"tokens", ext=".json")

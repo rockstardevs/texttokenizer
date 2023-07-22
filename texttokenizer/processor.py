@@ -49,12 +49,15 @@ class FitzProccessor(Processor):
                     f.write(font_obj.buffer)
                 log.info(f"writing font {filename} {enc}")
 
-    def tokenize(self, document: Document, fonts_dir: Path | None = None):
+    def tokenize(
+        self,
+        document: Document,
+        fonts_dir: Path | None = None,
+        merge_bboxes: bool = False,
+    ):
         log.info(f"processing - {document.filename}")
         for idx in document.page_indices:
-            tokens, fonts = self.tokenize_page(
-                idx, document.pdf_doc[idx], document.merge_bboxes
-            )
+            tokens, fonts = self.tokenize_page(idx, document.pdf_doc[idx], merge_bboxes)
             log.info(f"extracted {len(tokens)} tokens from page {idx}")
             log.info(f"fonts used: {fonts}")
             document.tokens.extend(tokens)

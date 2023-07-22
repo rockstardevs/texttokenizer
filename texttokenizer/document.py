@@ -18,7 +18,6 @@ class Document:
     # These attributes are needed at instantiation.
     filename: Path
     pages: Optional[str]
-    merge_bboxes: bool
 
     # These attributes are populated through the phases.
     pdf_doc: fitz.Document | None
