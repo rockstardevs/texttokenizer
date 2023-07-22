@@ -29,3 +29,19 @@ This phase also optionally extracts all the fonts in the document as intermediat
 This optional phase is useful for manually validating the detectect text segments and bounding boxes for accuracy. Each page of the document is exported as an image with the tokens drawn at the corresponding bounding box. This phase uses Pillow (PIL) for drawing the image.
 
 Currently, two alternatives are implemented - FitzAnnotator (using PyMuPDF) and PDFiumAnnotator (using PyPDFium2). PDFiumAnnotator has better rendering overall with anti-aliasing and sub-pixel aliasing support but both are sufficient for manual validation purposes.
+
+### Running tests and coverage report
+
+```pytest```
+
+with coverage
+
+```coverage -m pytest```
+
+coverage report
+
+```coverage html -d testdata```
+
+one liner
+
+```cover run -m pytest && coverage html -d testdata```

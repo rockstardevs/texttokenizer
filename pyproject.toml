@@ -21,6 +21,7 @@ texttokenizer = 'texttokenizer:cli'
 
 [tool.poetry.group.extras.dependencies]
 pytest = "^7.4.0"
+coverage = "^7.2.7"
 
 [build-system]
 requires = ["poetry-core"]
@@ -35,3 +36,8 @@ select = [
   "I001", # isort
   "UP", # pyupgrade
 ]
+
+[tool.pytest.ini_options]
+minversion = "7.4"
+norecursedirs = [".git", ".venv"]
+testpaths = ["tests"]
