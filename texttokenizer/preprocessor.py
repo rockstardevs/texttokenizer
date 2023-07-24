@@ -4,7 +4,7 @@ import ocrmypdf
 from loguru import logger as log
 
 
-class Preproccessor:
+class Preprocessor:
     """
     Implements a OMP (OcrMyPDF) based preprocessor.
     """

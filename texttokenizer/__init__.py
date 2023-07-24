@@ -15,8 +15,8 @@ from loguru import logger as log
 
 from .annotator import FitzAnnotator, PDFiumAnnotator
 from .document import Document
-from .preprocessor import Preproccessor
-from .processor import FitzProccessor
+from .preprocessor import Preprocessor
+from .processor import FitzProcessor
 from .util import suffix_path
 
 
@@ -73,8 +73,8 @@ def cli(**kwargs):
     options.tmproot.mkdir(parents=True, exist_ok=True)
 
     doc = dacite.from_dict(data_class=Document, data=asdict(options))
-    preprocessor = Preproccessor()
-    processor = FitzProccessor()
+    preprocessor = Preprocessor()
+    processor = FitzProcessor()
 
     fonts_dir = None
     if options.annotate:

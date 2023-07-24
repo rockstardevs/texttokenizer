@@ -19,7 +19,7 @@ class Processor(ABC):
         """processes the given document to tokenize it."""
 
 
-class FitzProccessor(Processor):
+class FitzProcessor(Processor):
     """
     Implements a fitz (PyMuPDF) based processor.
     """
