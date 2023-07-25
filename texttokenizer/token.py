@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import TypeAlias
 
 Font: TypeAlias = tuple[str, float]
+TokenKey: TypeAlias = tuple[int, tuple[float, float], str]
 
 
 @dataclass(kw_only=True)
@@ -18,6 +19,9 @@ class Token:
 
     def __repr__(self):
         return f"page:{self.page} text:{self.text} font:{self.font} bbox:{self.bbox} origin:{self.origin}"
+
+    def key(self) -> TokenKey:
+        return (self.page, self.origin, self.text)
 
     def as_csv_row(self) -> tuple:
         return ({self.page}, {self.text}, {self.font}, {self.origin}, {self.bbox})

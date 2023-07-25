@@ -1,6 +1,32 @@
 from pathlib import Path
 
+import fitz
+
 from .token import Token
+
+fontname_map = {
+    "Arial-BoldMT": "Arial-BoldMT-16",
+    "ITCFranklinGothicStd-Demi": "ITCFranklinGothicStd-Dem-4",
+}
+
+
+def guess_font(font, font_data: dict) -> tuple[str, fitz.Font]:
+    """Returns a best guess font name, ext and font object according to font data."""
+    font_obj = fitz.Font(fontbuffer=font_data["content"])
+    xref, ext, _, name, _, enc = font
+    if "+" in name:
+        name = name.split("+")[-1]
+    # Check if the name is in hard coded font names.
+    extn = font_data["ext"]
+    if name in fontname_map:
+        name = fontname_map[name]
+    elif ext == "n/a":
+        name = f"{name}-0"
+    else:
+        flags = flag_composer(font_obj.flags)
+        name = f"{name}-{flags}"
+    extn = extn if ext != "n/a" else "cff"
+    return (name, extn, font_obj)
 
 
 def suffix_path(src: Path, suffix: str, ext=".pdf") -> Path:

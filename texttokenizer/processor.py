@@ -6,7 +6,7 @@ from loguru import logger as log
 
 from .document import Document
 from .token import Font, Token
-from .util import flag_composer, merge_bboxes
+from .util import guess_font, merge_bboxes
 
 
 class Processor(ABC):
@@ -15,7 +15,12 @@ class Processor(ABC):
     """
 
     @abstractmethod
-    def tokenize(self, document: Document):
+    def tokenize(
+        self,
+        document: Document,
+        fonts_dir: Path | None = None,
+        merge_bboxes: bool = False,
+    ):
         """processes the given document to tokenize it."""
 
 
@@ -31,22 +36,14 @@ class FitzProcessor(Processor):
         filepath.mkdir(parents=True, exist_ok=True)
         for font in doc.get_page_fonts(idx):
             log.info(f"extracting page font: {font}")
-            xref, ext, _, name, _, enc = font
-            if "+" in name:
-                name = name.split("+")[-1]
-            font_obj, flags = None, 0
-            if ext == "n/a":
-                font_obj = fitz.Font(fontname=name)
-            else:
-                font_data = doc.extract_font(xref, named=True)
-                font_obj = fitz.Font(fontbuffer=font_data["content"])
-                flags = flag_composer(font_obj.flags)
-            name = f"{name}-{flags}"
+            font_data = doc.extract_font(font[0], named=True)
+            name, ext, font_obj = guess_font(font, font_data)
+            log.info(f"extracting as {name}.{ext}")
             if name in fonts:
-                filename = filepath.joinpath(name).with_suffix(f".{font_data['ext']}")
+                filename = filepath.joinpath(name).with_suffix(f".{ext}")
                 with open(filename, "wb") as f:
                     f.write(font_obj.buffer)
-                log.info(f"writing font {filename} {enc}")
+                log.info(f"writing font {filename}")
 
     def tokenize(
         self,
